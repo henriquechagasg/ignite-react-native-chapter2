@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { Modal } from 'react-native';
 import { CategorySelectButton } from '../../components/CategorySelectButton';
 import { Button } from '../../components/Forms/Button';
-import { Input } from '../../components/Forms/Input';
+import { ControlledInput } from '../../components/Forms/ControlledInput';
 import { TransactionTypeButton } from '../../components/Forms/TransactionTypeButton';
-import { categories } from '../../utils/categories';
 import { Category, CategorySelect } from '../CategorySelect';
 import {
   Container,
@@ -14,6 +14,11 @@ import {
   Fields,
   TransactionTypes,
 } from './styles';
+
+export interface FormData {
+  name: string;
+  value: string;
+}
 
 export function Register() {
   const [transactionType, setTransactionType] = useState<
@@ -26,6 +31,8 @@ export function Register() {
     name: 'Categoria',
     icon: 'any',
   });
+
+  const { control, handleSubmit } = useForm();
 
   function handleTransactionTypeSelect(type: 'income' | 'outcome') {
     setTransactionType(type);
@@ -43,6 +50,17 @@ export function Register() {
     setCategory(category);
   }
 
+  const handleRegister = (form: any) => {
+    const data = {
+      name: form.name,
+      value: form.value,
+      transactionType,
+      category,
+    };
+
+    console.log(data);
+  };
+
   return (
     <Container>
       <Header>
@@ -51,8 +69,9 @@ export function Register() {
 
       <Form>
         <Fields>
-          <Input placeholder="Nome" />
-          <Input placeholder="Preço" />
+          <ControlledInput name="name" control={control} placeholder="Nome" />
+
+          <ControlledInput name="value" control={control} placeholder="Valor" />
 
           <TransactionTypes>
             <TransactionTypeButton
@@ -76,7 +95,7 @@ export function Register() {
             onPress={handleOpenSelectCategoryModal}
           />
         </Fields>
-        <Button>Enviar</Button>
+        <Button onPress={handleSubmit(handleRegister)}>Enviar</Button>
       </Form>
 
       <Modal visible={categoryModalVisible}>
