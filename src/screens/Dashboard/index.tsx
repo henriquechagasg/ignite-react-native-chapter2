@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { HighlightCard } from '../../components/HighlightCard';
 import {
@@ -23,37 +23,54 @@ import {
   LogoutButton,
 } from './styles';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+
 export interface DataListProps extends TransactionDataProps {
   id: string;
 }
 
 export function Dashboard() {
-  const data: DataListProps[] = [
-    {
-      id: '1',
-      type: 'positive',
-      title: 'Desenvolvimento de sites',
-      amount: 'R$ 12.000,00',
-      category: { name: 'Vendas', icon: 'dollar-sign' },
-      date: '13/04/2020',
-    },
-    {
-      id: '2',
-      type: 'negative',
-      title: 'Desenvolvimento de sites',
-      amount: 'R$ 12.000,00',
-      category: { name: 'Vendas', icon: 'coffee' },
-      date: '13/04/2020',
-    },
-    {
-      id: '3',
-      type: 'negative',
-      title: 'Roupas',
-      amount: 'R$ 1.000,00',
-      category: { name: 'Compras', icon: 'shopping-bag' },
-      date: '13/04/2020',
-    },
-  ];
+  const [data, setData] = useState<DataListProps[]>([] as DataListProps[]);
+
+  async function loadTransactions() {
+    const dataKey = '@gofinance:transactions';
+
+    const transactionsString = await AsyncStorage.getItem(dataKey);
+
+    const transactions = transactionsString
+      ? (JSON.parse(transactionsString) as DataListProps[])
+      : [];
+
+    const formattedTransactions = transactions.map((transaction) => {
+      const value = Number(transaction.value).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
+
+      const date = Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      }).format(new Date(transaction.date));
+
+      return {
+        ...transaction,
+        date,
+        value,
+      };
+    });
+
+    console.log(formattedTransactions);
+
+    setData(formattedTransactions);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTransactions();
+    }, [])
+  );
 
   return (
     <Container>
@@ -81,19 +98,19 @@ export function Dashboard() {
         <HighlightCard
           type="up"
           title="Entradas"
-          amount="R$ 17.400,00"
+          value="R$ 17.400,00"
           lastTransaction="Última entrada dia 13 de abril"
         />
         <HighlightCard
           type="down"
           title="Saídas"
-          amount="R$ 1.259,00"
+          value="R$ 1.259,00"
           lastTransaction="Última saída dia 03 de abril"
         />
         <HighlightCard
           type="total"
           title="Total"
-          amount="R$ 16.141,00"
+          value="R$ 16.141,00"
           lastTransaction="01 à 16 de abril"
         />
       </HighlightCards>

@@ -89,10 +89,10 @@ export function Register() {
 
     const newRegister = {
       id: uuid.v4() as string,
-      name: form.name,
+      title: form.name,
       value: form.value,
-      transactionType,
-      category,
+      type: transactionType,
+      category: category.key,
       date: new Date(),
     };
 
