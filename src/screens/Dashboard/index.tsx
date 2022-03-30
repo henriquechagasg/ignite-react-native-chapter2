@@ -28,6 +28,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native';
 import { useTheme } from 'styled-components';
+import { useAuth } from '../../hooks/auth';
 
 export interface DataListProps extends TransactionDataProps {
   id: string;
@@ -56,6 +57,8 @@ export function Dashboard() {
   );
 
   const theme = useTheme();
+
+  const { user, signOut } = useAuth();
 
   function getLastTransactionFormatted(
     transactions: DataListProps[],
@@ -154,6 +157,10 @@ export function Dashboard() {
     }, 1000);
   }
 
+  async function handleSignOut() {
+    signOut();
+  }
+
   useFocusEffect(
     useCallback(() => {
       loadTransactions();
@@ -173,16 +180,20 @@ export function Dashboard() {
               <UserInfo>
                 <Photo
                   source={{
-                    uri: 'https://avatars.githubusercontent.com/u/69800139?v=4',
+                    uri: user.photo
+                      ? user.photo
+                      : `https://ui-avatars.com/api/?name=${encodeURI(
+                          user.name
+                        )}`,
                   }}
                 />
                 <User>
                   <UserGreeting>Olá,</UserGreeting>
-                  <UserName>Henrique</UserName>
+                  <UserName>{user.name}</UserName>
                 </User>
               </UserInfo>
 
-              <LogoutButton onPress={() => {}}>
+              <LogoutButton onPress={handleSignOut}>
                 <Icon name="power" />
               </LogoutButton>
             </UserInfoWrapper>
