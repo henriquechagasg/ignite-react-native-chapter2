@@ -63,13 +63,19 @@ export function Dashboard() {
   function getLastTransactionFormatted(
     transactions: DataListProps[],
     type: 'income' | 'outcome'
-  ) {
+  ): string | 'NO_DATA' {
+    const filtered = transactions.filter(
+      (transaction) => transaction.type === type
+    );
+
+    if (filtered.length < 1) {
+      return 'NO_DATA';
+    }
+
     const date = new Date(
       Math.max.apply(
         Math,
-        transactions
-          .filter((transaction) => transaction.type === type)
-          .map((transaction) => new Date(transaction.date).getTime())
+        filtered.map((transaction) => new Date(transaction.date).getTime())
       )
     );
 
@@ -134,14 +140,20 @@ export function Dashboard() {
           style: 'currency',
           currency: 'BRL',
         }),
-        lastTransaction: `Última entrada dia ${incomeLastTransactionFormatted}.`,
+        lastTransaction:
+          incomeLastTransactionFormatted === 'NO_DATA'
+            ? 'Não há dados desse tipo de transação'
+            : `Última entrada dia ${incomeLastTransactionFormatted}.`,
       },
       outcomes: {
         value: outcomesTotal.toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL',
         }),
-        lastTransaction: `Última saída dia ${outcomeLastTransactionFormatted}.`,
+        lastTransaction:
+          outcomeLastTransactionFormatted === 'NO_DATA'
+            ? 'Não há dados desse tipo de transação'
+            : `Última saída dia ${outcomeLastTransactionFormatted}.`,
       },
       total: {
         value: (incomesTotal - outcomesTotal).toLocaleString('pt-BR', {
