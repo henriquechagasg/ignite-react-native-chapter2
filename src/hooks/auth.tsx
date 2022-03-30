@@ -5,7 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AuthSession from 'expo-auth-session';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 const { GOOGLE_CLIENT_ID } = process.env;
 const { GOOGLE_REDIRECT_URI } = process.env;
@@ -24,6 +26,7 @@ interface User {
 interface ContextData {
   user: User;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
 }
 
 interface AuthorizationResponse {
@@ -59,10 +62,11 @@ export function AuthProvider({ children }: ProviderProps) {
 
         const userInfo = await response.json();
 
-        setUser({
+        await keepUser({
           id: userInfo.id,
           email: userInfo.email,
           name: userInfo.name,
+          photo: userInfo.picture,
         });
       }
     } catch (error: any) {
@@ -70,8 +74,34 @@ export function AuthProvider({ children }: ProviderProps) {
     }
   }
 
+  async function signInWithApple() {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (credential) {
+        await keepUser({
+          id: String(credential.user),
+          email: credential.email!,
+          name: credential.fullName?.givenName!,
+        });
+      }
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  }
+
+  async function keepUser(user: User) {
+    setUser(user);
+    await AsyncStorage.setItem('@gofinances:user', JSON.stringify(user));
+  }
+
   return (
-    <AuthContext.Provider value={{ user, signInWithGoogle }}>
+    <AuthContext.Provider value={{ user, signInWithGoogle, signInWithApple }}>
       {children}
     </AuthContext.Provider>
   );
