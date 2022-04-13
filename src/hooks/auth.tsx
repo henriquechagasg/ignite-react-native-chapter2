@@ -39,6 +39,16 @@ interface AuthorizationResponse {
 
 export const AuthContext = createContext({} as ContextData);
 
+async function getGoogleUserData(acessToken: string) {
+  const response = await fetch(
+    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${acessToken}`
+  );
+
+  const userInfo = await response.json();
+
+  return userInfo;
+}
+
 export function AuthProvider({ children }: ProviderProps) {
   const userKey = '@gofinances:user';
 
@@ -59,11 +69,7 @@ export function AuthProvider({ children }: ProviderProps) {
       })) as AuthorizationResponse;
 
       if (type === 'success') {
-        const response = await fetch(
-          `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`
-        );
-
-        const userInfo = await response.json();
+        const userInfo = await getGoogleUserData(access_token);
 
         await keepUser({
           id: userInfo.id,
