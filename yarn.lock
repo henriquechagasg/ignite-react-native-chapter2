@@ -5124,6 +5124,14 @@ jest-mock@^26.6.2:
     "@jest/types" "^26.6.2"
     "@types/node" "*"
 
+jest-mock@^27.5.1:
+  version "27.5.1"
+  resolved "https://registry.yarnpkg.com/jest-mock/-/jest-mock-27.5.1.tgz#19948336d49ef4d9c52021d34ac7b5f36ff967d6"
+  integrity sha512-K4jKbY1d4ENhbrG2zuPWaQBvDly+iZ2yAW+T1fATN78hc0sInwn7wZB8XtlNnvHug5RMwV897Xm4LqmPM4e2Og==
+  dependencies:
+    "@jest/types" "^27.5.1"
+    "@types/node" "*"
+
 jest-pnp-resolver@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/jest-pnp-resolver/-/jest-pnp-resolver-1.2.2.tgz#b704ac0ae028a89108a4d040b3f919dfddc8e33c"
