@@ -61,15 +61,12 @@ export function AuthProvider({ children }: ProviderProps) {
 
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
 
-      const {
-        type,
-        params: { access_token },
-      } = (await AuthSession.startAsync({
+      const { type, params } = (await AuthSession.startAsync({
         authUrl,
       })) as AuthorizationResponse;
 
       if (type === 'success') {
-        const userInfo = await getGoogleUserData(access_token);
+        const userInfo = await getGoogleUserData(params?.access_token);
 
         await keepUser({
           id: userInfo.id,
